@@ -1,12 +1,27 @@
-FROM python:3.11-alpine
+# Use the official Python image from the Docker Hub
+FROM python:3.11-slim-bullseye
 
-ENV PIP_DISABLE_PIP_VERSION_CHECK 1
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
+# Set the working directory in the container
 WORKDIR /code
 
-COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+# Copy the requirements file into the container
+COPY ./requirements.txt /code/requirements.txt
 
-COPY . .
+# Install any needed packages specified in requirements.txt
+# Install dependencies
+RUN set -xe \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends build-essential libpq-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --upgrade pip \
+    && pip install -r requirements.txt
+
+# Copy the rest of the application code into the container
+COPY . /code
+
+# Make the entrypoint script executable
+RUN chmod +x entrypoint.sh
+
+# Specify the command to run on container start
+ENTRYPOINT ["code/entrypoint.sh"]
