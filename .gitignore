@@ -1,5 +1,6 @@
 # Personal gitignore file for Python projects
-/local
+# /local
+# **.env
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
