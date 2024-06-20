@@ -1,10 +1,10 @@
 import os
 
-from split_settings.tools import include, optional
+from split_settings.tools import include, optional  # noqa
 
-include("components/base.py", "components/database.py", optional("components/local_settings.py"))
+# include("components/base.py", "components/database.py", optional("components/local_settings.py"))
 
 if os.getenv("DJANGO_ENV") == "development":
-    include("components/development.py")
+    include("development.py")
 else:
-    include("components/production.py")
+    include("production.py")
