@@ -30,3 +30,4 @@ services:
 
 volumes:
   pgdata_dev:
+    name: pgdata_dev_volume
