@@ -22,4 +22,4 @@ EXPOSE 8000
 ENV DJANGO_SETTINGS_MODULE=app_core.settings
 
 # Run the Django development server
-CMD ["python", "app_core/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["./scripts/wait-for-it.sh", "db:5432", "--", "sh", "-c", "python app_core/manage.py runserver 0.0.0.0:8000"]
