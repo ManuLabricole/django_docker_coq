@@ -13,8 +13,14 @@ help:  ## Show this help.
 	@echo "Targets:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 
+prep-dev-env:  ## Prepare the development environment
+	echo "🚀 Preparing development environment..."
+	chmod +x scripts/prep_dev_env.sh
+	./scripts/prep_dev_env.sh
+
 dev:  ## Launch the development container
-	$(DOCKER_COMPOSE_DEV) up --build
+	echo "🚀 Starting Docker containers..."
+	 $(DOCKER_COMPOSE_DEV) up --build
 
 prod:  ## Launch the production container
 	$(DOCKER_COMPOSE_PROD) up --build
