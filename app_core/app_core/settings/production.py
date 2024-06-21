@@ -1,7 +1,7 @@
-from .base import * # noqa
+from .base import *  # noqa
 
 DEBUG = False
 
 ALLOWED_HOSTS = ["your-production-domain.com"]
 
-# Additional production settings
+# SECRET_KEY = env("SECRET_KEY", default="your-secret-key")
