@@ -1,14 +1,16 @@
 services:
   db:
+    container_name: db-dev
     build:
       context: ./config/postgres
     env_file:
       - local/development.env
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_dev:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-  web:
+  django:
+    container_name: django-dev
     build:
       context: .
       args:
@@ -27,4 +29,4 @@ services:
 
 
 volumes:
-  pgdata:
+  pgdata_dev:
