@@ -15,6 +15,9 @@ RUN pip install --no-cache-dir -r ${REQUIREMENTS_FILE}
 # Copy the entire project
 COPY . /usr/src/app/
 
+# Ensure scripts are executable
+RUN chmod +x /usr/src/app/scripts/*.sh
+
 # Expose the port the app runs on
 EXPOSE 8000
 
