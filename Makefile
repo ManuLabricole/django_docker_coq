@@ -10,7 +10,7 @@ GREEN=\033[0;32m
 NO_COLOR=\033[0m
 
 # Targets
-.PHONY: help dev prod shell-dev shell-prod reset-db db-up makemigrations-migrate create-superuser bootstrap-database manage list-scripts
+.PHONY: help dev prod shell-dev shell-prod
 
 help:  ## Show this help.
 	@echo -e "${CYAN}Usage: make [target]${NO_COLOR}"
@@ -19,35 +19,41 @@ help:  ## Show this help.
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  ${GREEN}%-20s${NO_COLOR} %s\n", $$1, $$2}'
 	@$(MAKE) list-scripts
 
-dev:  ## 🚀 Launch the development container
-	chmod +x scripts/dev/stop-db.sh
-	@echo -e "🚀 ${CYAN}Preparing development environment...${NO_COLOR}"
-	./scripts/dev/stop-db.sh
-	@echo -e "🚀 ${CYAN}Starting Docker containers...${NO_COLOR}"
-	$(DOCKER_COMPOSE_DEV) up --build
+run:  ## 🚀 Launch the container (env=dev|prod)
+	@$(MAKE) _run env=$(env)
 
-prod:  ## 🚀 Launch the production container
-	$(DOCKER_COMPOSE_PROD) up --build
+_run:
+	@if [ "$(env)" = "dev" ]; then \
+		echo -e "🚀 ${CYAN}Starting development Docker containers...${NO_COLOR}"; \
+		$(DOCKER_COMPOSE_DEV) up --build; \
+	elif [ "$(env)" = "prod" ]; then \
+		echo -e "🚀 ${CYAN}Starting production Docker containers...${NO_COLOR}"; \
+		$(DOCKER_COMPOSE_PROD) up --build; \
+	else \
+		echo -e "${RED}Invalid environment specified. Use 'env=dev' or 'env=prod'.${NO_COLOR}"; \
+		exit 1; \
+	fi
+shell:  ## 🔧 Enter the shell of the container (env=dev|prod)
+	@$(MAKE) _shell env=$(env)
 
-shell-dev:  ## 🔧 Enter the shell of the development container
-	$(DOCKER_COMPOSE_DEV) run --rm web sh
+_shell:
+	@if [ "$(env)" = "dev" ]; then \
+		echo -e "🔧 ${CYAN}Entering shell of the development container...${NO_COLOR}"; \
+		$(DOCKER_COMPOSE_DEV) run --rm django sh; \
+	elif [ "$(env)" = "prod" ]; then \
+		echo -e "🔧 ${CYAN}Entering shell of the production container...${NO_COLOR}"; \
+		$(DOCKER_COMPOSE_PROD) run --rm django sh; \
+	else \
+		echo -e "${RED}Invalid environment specified. Use 'env=dev' or 'env=prod'.${NO_COLOR}"; \
+		exit 1; \
+	fi
 
-shell-prod:  ## 🔧 Enter the shell of the production container
-	$(DOCKER_COMPOSE_PROD) run --rm web sh
-
-manage:  ## 🔧 Manage script to call other functions
-	@$(MAKE) _manage ARGS="$(filter-out $@,$(MAKECMDGOALS))"
-
-_manage:
-	chmod +x scripts/manage.sh
-	chmod +x scripts/*.sh
-	chmod +x scripts/dev/*.sh
-	./scripts/manage.sh $(ARGS)
-
-list-scripts:  ## 📜 List all .sh files in scripts/ and scripts/dev/
-	@echo -e "${CYAN}Here are the .sh scripts available in scripts/ and scripts/dev/:${NO_COLOR}"
-	@find scripts/ scripts/dev/ -name "*.sh" | while read -r file; do echo -e "  ${GREEN}$$file${NO_COLOR} - Script file"; done
-
-# Catch-all target to prevent Make from interpreting additional arguments as targets
-%:
-	@:
+reset:  ## 🔄 Reset the environment (env=dev|prod)
+	@echo -e "🛑 ${CYAN}Stopping development containers...${NO_COLOR}"
+	$(DOCKER_COMPOSE_DEV) stop
+	@echo -e "🗑️  ${CYAN}Removing development containers...${NO_COLOR}"
+	$(DOCKER_COMPOSE_DEV) rm -f
+	@echo -e "🗑️  ${CYAN}Removing unused images and volumes...${NO_COLOR}"
+	$(DOCKER_COMPOSE_DEV) down --rmi all -v --remove-orphans
+	@echo -e "🚀 ${CYAN}Rebuilding development environment...${NO_COLOR}"
+	$(DOCKER_COMPOSE_DEV) up --build -d
