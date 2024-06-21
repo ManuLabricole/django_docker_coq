@@ -4,49 +4,50 @@
 DOCKER_COMPOSE_DEV = docker-compose -f docker-compose.dev.yml
 DOCKER_COMPOSE_PROD = docker-compose -f docker-compose.yml
 
+# Colors
+CYAN=\033[0;36m
+GREEN=\033[0;32m
+NO_COLOR=\033[0m
+
 # Targets
-.PHONY: help dev prod shell-dev shell-prod
+.PHONY: help dev prod shell-dev shell-prod reset-db db-up makemigrations-migrate create-superuser bootstrap-database manage list-scripts
 
 help:  ## Show this help.
-	@echo "Usage: make [target]"
+	@echo -e "${CYAN}Usage: make [target]${NO_COLOR}"
 	@echo ""
-	@echo "Targets:"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
+	@echo -e "${CYAN}Targets:${NO_COLOR}"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  ${GREEN}%-20s${NO_COLOR} %s\n", $$1, $$2}'
+	@$(MAKE) list-scripts
 
-prep-dev-env:  ## Prepare the development environment
-	@echo "🚀 Preparing development environment..."
-	chmod +x scripts/prep_dev_env.sh
-	./scripts/prep_dev_env.sh
-	@echo "✅ Development environment prepared."
-
-dev:  ## Launch the development container
-	@echo "🚀 Starting Docker containers..."
+dev:  ## 🚀 Launch the development container
+	chmod +x scripts/dev/stop-db.sh
+	@echo -e "🚀 ${CYAN}Preparing development environment...${NO_COLOR}"
+	./scripts/dev/stop-db.sh
+	@echo -e "🚀 ${CYAN}Starting Docker containers...${NO_COLOR}"
 	$(DOCKER_COMPOSE_DEV) up --build
-	@echo "✅ Docker containers started."
 
-
-prod:  ## Launch the production container
+prod:  ## 🚀 Launch the production container
 	$(DOCKER_COMPOSE_PROD) up --build
 
-shell-dev:  ## Enter the shell of the development container
+shell-dev:  ## 🔧 Enter the shell of the development container
 	$(DOCKER_COMPOSE_DEV) run --rm web sh
 
-shell-prod:  ## Enter the shell of the production container
+shell-prod:  ## 🔧 Enter the shell of the production container
 	$(DOCKER_COMPOSE_PROD) run --rm web sh
 
-reset-db:  ## Remove the existing database volume
-	@echo "🗑️  Removing the existing database volume..."
-	docker-compose -f docker-compose.dev.yml down
-	docker volume rm django_docker_coq_pgdata
-	@echo "✅ Database volume removed."
+manage:  ## 🔧 Manage script to call other functions
+	@$(MAKE) _manage ARGS="$(filter-out $@,$(MAKECMDGOALS))"
 
-db-up:  ## Launch only the database container
-	@echo "🚀 Starting the database container..."
-	$(DOCKER_COMPOSE_DEV) up -d db
-	@echo "✅ Database container started."
+_manage:
+	chmod +x scripts/manage.sh
+	chmod +x scripts/*.sh
+	chmod +x scripts/dev/*.sh
+	./scripts/manage.sh $(ARGS)
 
-migrations-migrate:  ## Run Django migrations
-	@echo "✅ Running Django migrations..."
-	$(DOCKER_COMPOSE_DEV) run --rm web python app_core/manage.py makemigrations
-	$(DOCKER_COMPOSE_DEV) run --rm web python app_core/manage.py migrate
-	@echo "✅ Django migrations ran."
+list-scripts:  ## 📜 List all .sh files in scripts/ and scripts/dev/
+	@echo -e "${CYAN}Here are the .sh scripts available in scripts/ and scripts/dev/:${NO_COLOR}"
+	@find scripts/ scripts/dev/ -name "*.sh" | while read -r file; do echo -e "  ${GREEN}$$file${NO_COLOR} - Script file"; done
+
+# Catch-all target to prevent Make from interpreting additional arguments as targets
+%:
+	@:
