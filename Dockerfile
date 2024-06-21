@@ -22,7 +22,7 @@ RUN chmod +x /usr/src/app/scripts/*.sh
 EXPOSE 8000
 
 # Set environment variables for Django
-ENV DJANGO_SETTINGS_MODULE=app_core.settings
+ENV DJANGO_SETTINGS_MODULE=core.settings
 
 # Run the Django development server
-CMD ["./scripts/wait-for-it.sh", "db:5432", "--", "sh", "-c", "python app_core/manage.py runserver 0.0.0.0:8000"]
+CMD ["./scripts/wait-for-it.sh", "db:5432", "--", "sh", "-c", "python investment_manager/manage.py runserver 0.0.0.0:8000"]

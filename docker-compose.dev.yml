@@ -23,7 +23,7 @@ services:
     env_file:
       - local/development.env
     environment:
-      - DJANGO_SETTINGS_MODULE=app_core.settings.development
+      - DJANGO_SETTINGS_MODULE=core.settings.development
     depends_on:
       - db
 

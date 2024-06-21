@@ -60,15 +60,15 @@ reset:  ## 🔄 Reset the environment (env=dev|prod)
 
 migrations-migrate:  ## 📦 Make Django migrations
 	@echo -e "📦 ${CYAN}Making Django migrations...${NO_COLOR}"
-	$(DOCKER_COMPOSE_DEV) run --rm django python app_core/manage.py makemigrations
+	$(DOCKER_COMPOSE_DEV) run --rm django python investment_manager/manage.py makemigrations
 	@echo -e "📦 ${CYAN}Applying Django migrations...${NO_COLOR}"
-	$(DOCKER_COMPOSE_DEV) run --rm django python app_core/manage.py migrate
+	$(DOCKER_COMPOSE_DEV) run --rm django python investment_manager/manage.py migrate
 
 create_custom_superuser:  ## 👤 Create a custom superuser
 	@echo -e "👤 ${CYAN}Creating a custom superuser...${NO_COLOR}"
 	@echo -e "👤 ${CYAN}Using the following credentials from development.env:${NO_COLOR}"
 	# @grep 'DJANGO_SUPERUSER_' local/development.env | while read -r line; do echo -e "  ${GREEN}$$line${NO_COLOR}"; done
-	$(DOCKER_COMPOSE_DEV) run --rm django python app_core/manage.py create_custom_superuser
+	$(DOCKER_COMPOSE_DEV) run --rm django python investment_manager/manage.py create_custom_superuser
 
 
 bootstrap-database:  ## 🔄 Bootstrap the database (reset, migrate, create superuser)
