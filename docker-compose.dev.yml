@@ -13,3 +13,19 @@ services:
       - local/development.env
     environment:
       - DJANGO_SETTINGS_MODULE=app_core.settings.development
+    depends_on:
+      - db
+
+
+  db:
+    build:
+      context: ./config/postgres
+    env_file:
+      - local/development.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata:
