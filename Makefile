@@ -10,7 +10,7 @@ GREEN=\033[0;32m
 NO_COLOR=\033[0m
 
 # Targets
-.PHONY: help dev prod shell-dev shell-prod
+.PHONY: help dev prod shell-dev shell-prod lint
 
 help:  ## Show this help.
 	@echo -e "${CYAN}Usage: make [target]${NO_COLOR}"
@@ -19,9 +19,11 @@ help:  ## Show this help.
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  ${GREEN}%-20s${NO_COLOR} %s\n", $$1, $$2}'
 	@$(MAKE) list-scripts
 
+lint:
+    ruff check . --fix
+
 run:  ## 🚀 Launch the container (env=dev|prod)
 	@$(MAKE) _run env=$(env)
-
 _run:
 	@if [ "$(env)" = "dev" ]; then \
 		echo -e "🚀 ${CYAN}Starting development Docker containers...${NO_COLOR}"; \
