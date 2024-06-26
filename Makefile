@@ -20,7 +20,7 @@ help:  ## Show this help.
 	@$(MAKE) list-scripts
 
 lint:
-    ruff check . --fix
+	ruff check . --fix
 
 run:  ## 🚀 Launch the container (env=dev|prod)
 	@$(MAKE) _run env=$(env)
