@@ -18,5 +18,3 @@ DATABASES = {
         "PORT": env("POSTGRES_PORT"),
     }
 }
-
-A = "kbuerfuberferuberferuberferuberferuberferuberferuberferuberferuberferuberferuberferuberferuberferuberferuberfeuberferuberferuberferuberferuberferruberfer"
